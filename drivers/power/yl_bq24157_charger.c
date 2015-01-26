@@ -106,9 +106,8 @@ struct bq24157_chip {
 	struct pinctrl_state *int_state_suspend;
 	/* added for reporting batt info in suspend */
 	struct wake_lock wait_report_info_lock;
-        /* add by sunxiaogang@yulong.com
-           no suspend during charging  2014.12.09*/
-        struct wake_lock charging_wlock;
+	/* no suspend during charging */
+	struct wake_lock charging_wlock;
 };
 
 static struct bq24157_chip *this_chip;
@@ -184,8 +183,13 @@ enum batt_temp_threshold {
 	BATT_TEMP_TOO_COLD_THRESHOLD = 0,           /*  0 celsius*/
 	BATT_TEMP_COLD_THRESHOLD = 100,                 /* 10 celsius */
 	BATT_TEMP_COOL_THRESHOLD = 200,                 /* 20 celsius */
+	#ifdef CONFIG_CHARGING_DISABLE_IN_HIGH_TEMPERATURE_MICROMAX
+	BATT_TEMP_NUM_THRESHOLD = 520,                   /* 50 celsius (real temp), Micromax requested*/
+	BATT_TEMP_HOT_THRESHOLD = 590,                   /* 57 celsius (real temp), Micromax requested*/
+	#else
 	BATT_TEMP_NUM_THRESHOLD = 490,
 	BATT_TEMP_HOT_THRESHOLD = 600,
+	#endif
 };
 
 #define BATT_FULL_CAPA   2500
@@ -803,7 +807,9 @@ static int get_batt_temp_status(struct bq24157_chip *chip)
 
 #define STEP_CHG_THRESHOLD_VOLT_MV        4000
 #define STEP_CHG_DELTA_VOLT_MV                  20
+#ifdef CONFIG_CHARGING_DISABLE_IN_HIGH_TEMPERATURE_MICROMAX
 static bool batt_charge_disable = false; //add by sunxiaogang to realize the recharge function 20140928
+#endif
 static int bq24157_temp_appropriate_charging(struct bq24157_chip *chip)
 {
 	static int last_temp_sts = BATT_TEMP_STATUS_UNKOWN;
@@ -849,15 +855,21 @@ static int bq24157_temp_appropriate_charging(struct bq24157_chip *chip)
 				break;
 			case BATT_TEMP_NUM:
 				chg_current = CHG_CURR_LIMIT_NUM;
+				#ifdef CONFIG_CHARGING_DISABLE_IN_HIGH_TEMPERATURE_MICROMAX
 				batt_charge_disable = false;	//add by sunxiaogang to realize the recharge function 20140928
+				#endif
 				break;
 			case BATT_TEMP_HOT:
+				#ifdef CONFIG_CHARGING_DISABLE_IN_HIGH_TEMPERATURE_MICROMAX
 				if(batt_charge_disable == true)	//add by sunxiaogang to realize the recharge function 20140928
 					chip->batt_too_hot = true;
 				break;
+				#endif
 			case BATT_TEMP_TOO_HOT:
 				chip->batt_too_hot = true;
+				#ifdef CONFIG_CHARGING_DISABLE_IN_HIGH_TEMPERATURE_MICROMAX
 				batt_charge_disable = true;	//add by sunxiaogang to realize the recharge function 20140928
+				#endif
 				break;
 			default:
 				break;
