@@ -1062,7 +1062,13 @@ struct mdp_display_commit {
 	uint32_t flags;
 	uint32_t wait_for_finish;
 	struct fb_var_screeninfo var;
+#ifdef __KERNEL__
 	struct mdp_rect roi;
+#else
+	/* Userspace wants this renamed... */
+	struct mdp_rect l_roi;
+	struct mdp_rect r_roi;
+#endif
 };
 
 /**
