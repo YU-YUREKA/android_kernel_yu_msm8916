@@ -1058,6 +1058,13 @@ struct mdp_async_blit_req_list {
 
 #define MDP_DISPLAY_COMMIT_OVERLAY	1
 
+struct mdp_buf_fence {
+	uint32_t flags;
+	uint32_t acq_fen_fd_cnt;
+	int acq_fen_fd[MDP_MAX_FENCE_FD];
+	int rel_fen_fd[MDP_MAX_FENCE_FD];
+};
+
 struct mdp_display_commit {
 	uint32_t flags;
 	uint32_t wait_for_finish;
@@ -1069,6 +1076,7 @@ struct mdp_display_commit {
 	struct mdp_rect l_roi;
 	struct mdp_rect r_roi;
 #endif
+	struct mdp_buf_fence buf_fence;
 };
 
 /**
