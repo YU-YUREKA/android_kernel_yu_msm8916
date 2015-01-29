@@ -232,7 +232,6 @@ struct mdss_mdp_mixer {
 	u16 width;
 	u16 height;
 	struct mdss_mdp_img_rect roi;
-	struct mdss_rect roi;
 	u8 cursor_enabled;
 	u16 cursor_hotx;
 	u16 cursor_hoty;
