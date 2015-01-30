@@ -197,8 +197,8 @@ struct mdss_mdp_ctl {
 
 	struct mdss_rect roi;
 	struct mdss_rect roi_bkup;
-	struct mdss_mdp_img_rect roi;
 	u8 roi_changed;
+	u8 valid_roi;
 
 	int (*start_fnc) (struct mdss_mdp_ctl *ctl);
 	int (*stop_fnc) (struct mdss_mdp_ctl *ctl);

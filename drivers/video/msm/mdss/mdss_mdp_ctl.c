@@ -1709,7 +1709,6 @@ int mdss_mdp_ctl_setup(struct mdss_mdp_ctl *ctl)
 
 	ctl->width = width;
 	ctl->height = height;
-	//ctl->roi = (struct mdss_rect) {0, 0, width, height};
 	ctl->roi = (struct mdss_mdp_img_rect) {0, 0, width, height};
 
 	if (!ctl->mixer_left) {
@@ -1733,7 +1732,6 @@ int mdss_mdp_ctl_setup(struct mdss_mdp_ctl *ctl)
 
 	ctl->mixer_left->width = width;
 	ctl->mixer_left->height = height;
-	//ctl->mixer_left->roi = (struct mdss_rect) {0, 0, width, height};
 	ctl->mixer_left->roi = (struct mdss_mdp_img_rect) {0, 0, width, height};
 
 	if (is_panel_split(ctl->mfd)) {
