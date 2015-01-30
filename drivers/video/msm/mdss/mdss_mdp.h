@@ -30,6 +30,7 @@
 #define MDSS_MDP_CURSOR_WIDTH 64
 #define MDSS_MDP_CURSOR_HEIGHT 64
 #define MDSS_MDP_CURSOR_SIZE (MDSS_MDP_CURSOR_WIDTH*MDSS_MDP_CURSOR_WIDTH*4)
+#define MDSS_MDP_PIXEL_RAM_SIZE (50 * 1024)
 
 #define PHASE_STEP_SHIFT	21
 #define MAX_LINE_BUFFER_WIDTH	2048
@@ -68,6 +69,10 @@
 #define PERF_CALC_PIPE_SINGLE_LAYER	BIT(1)
 #define PERF_CALC_PIPE_CALC_SMP_SIZE	BIT(2)
 
+#define PERF_SINGLE_PIPE_BW_FLOOR 1200000000
+#define CURSOR_PIPE_LEFT 0
+#define CURSOR_PIPE_RIGHT 1
+
 enum mdss_mdp_perf_state_type {
 	PERF_SW_COMMIT_STATE = 0,
 	PERF_HW_MDP_STATE,
@@ -95,6 +100,7 @@ enum mdss_mdp_pipe_type {
 	MDSS_MDP_PIPE_TYPE_VIG,
 	MDSS_MDP_PIPE_TYPE_RGB,
 	MDSS_MDP_PIPE_TYPE_DMA,
+	MDSS_MDP_PIPE_TYPE_CURSOR,
 };
 
 enum mdss_mdp_block_type {
@@ -562,13 +568,6 @@ static inline int mdss_mdp_line_buffer_width(void)
 	return MAX_LINE_BUFFER_WIDTH;
 }
 
-static inline struct clk *mdss_mdp_get_clk(u32 clk_idx)
-{
-	if (clk_idx < MDSS_MAX_CLK)
-		return mdss_res->mdp_clk[clk_idx];
-	return NULL;
-}
-
 static inline int mdss_mdp_panic_signal_supported(
 	struct mdss_data_type *mdata, struct mdss_mdp_pipe *pipe)
 {
@@ -578,6 +577,13 @@ static inline int mdss_mdp_panic_signal_supported(
 					MDSS_MDP_HW_REV_108)) &&
 		pipe->mixer_left &&
 		pipe->mixer_left->type == MDSS_MDP_MIXER_TYPE_INTF);
+}
+
+static inline struct clk *mdss_mdp_get_clk(u32 clk_idx)
+{
+	if (clk_idx < MDSS_MAX_CLK)
+		return mdss_res->mdp_clk[clk_idx];
+	return NULL;
 }
 
 irqreturn_t mdss_mdp_isr(int irq, void *ptr);
