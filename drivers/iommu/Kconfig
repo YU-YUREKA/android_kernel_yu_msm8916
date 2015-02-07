@@ -148,6 +148,7 @@ config MSM_IOMMU_TLBINVAL_ON_MAP
 
 	 If unsure, say Y here.
 
+
 # AMD IOMMU support
 config AMD_IOMMU
 	bool "AMD IOMMU support"

@@ -30,6 +30,7 @@
 #define MDSS_MDP_CURSOR_WIDTH 64
 #define MDSS_MDP_CURSOR_HEIGHT 64
 #define MDSS_MDP_CURSOR_SIZE (MDSS_MDP_CURSOR_WIDTH*MDSS_MDP_CURSOR_WIDTH*4)
+#define MDSS_MDP_PIXEL_RAM_SIZE (50 * 1024)
 
 #define PHASE_STEP_SHIFT	21
 #define MAX_LINE_BUFFER_WIDTH	2048
@@ -46,6 +47,7 @@
 #define MDP_MIN_VBP		4
 #define MDP_MIN_FETCH		9
 #define MAX_FREE_LIST_SIZE	12
+#define OVERLAY_MAX		10
 
 #define C3_ALPHA	3	/* alpha */
 #define C2_R_Cr		2	/* R/Cr */
@@ -66,6 +68,10 @@
 #define PERF_CALC_PIPE_APPLY_CLK_FUDGE	BIT(0)
 #define PERF_CALC_PIPE_SINGLE_LAYER	BIT(1)
 #define PERF_CALC_PIPE_CALC_SMP_SIZE	BIT(2)
+
+#define PERF_SINGLE_PIPE_BW_FLOOR 1200000000
+#define CURSOR_PIPE_LEFT 0
+#define CURSOR_PIPE_RIGHT 1
 
 enum mdss_mdp_perf_state_type {
 	PERF_SW_COMMIT_STATE = 0,
@@ -94,6 +100,7 @@ enum mdss_mdp_pipe_type {
 	MDSS_MDP_PIPE_TYPE_VIG,
 	MDSS_MDP_PIPE_TYPE_RGB,
 	MDSS_MDP_PIPE_TYPE_DMA,
+	MDSS_MDP_PIPE_TYPE_CURSOR,
 };
 
 enum mdss_mdp_block_type {
@@ -121,6 +128,13 @@ enum mdp_wfd_blk_type {
 
 struct mdss_mdp_ctl;
 typedef void (*mdp_vsync_handler_t)(struct mdss_mdp_ctl *, ktime_t);
+
+struct mdss_mdp_img_rect {
+	u16 x;
+	u16 y;
+	u16 w;
+	u16 h;
+};
 
 struct mdss_mdp_vsync_handler {
 	bool enabled;
@@ -191,6 +205,7 @@ struct mdss_mdp_ctl {
 	struct mdss_rect roi;
 	struct mdss_rect roi_bkup;
 	u8 roi_changed;
+	u8 valid_roi;
 
 	int (*start_fnc) (struct mdss_mdp_ctl *ctl);
 	int (*stop_fnc) (struct mdss_mdp_ctl *ctl);
@@ -553,13 +568,6 @@ static inline int mdss_mdp_line_buffer_width(void)
 	return MAX_LINE_BUFFER_WIDTH;
 }
 
-static inline struct clk *mdss_mdp_get_clk(u32 clk_idx)
-{
-	if (clk_idx < MDSS_MAX_CLK)
-		return mdss_res->mdp_clk[clk_idx];
-	return NULL;
-}
-
 static inline int mdss_mdp_panic_signal_supported(
 	struct mdss_data_type *mdata, struct mdss_mdp_pipe *pipe)
 {
@@ -569,6 +577,13 @@ static inline int mdss_mdp_panic_signal_supported(
 					MDSS_MDP_HW_REV_108)) &&
 		pipe->mixer_left &&
 		pipe->mixer_left->type == MDSS_MDP_MIXER_TYPE_INTF);
+}
+
+static inline struct clk *mdss_mdp_get_clk(u32 clk_idx)
+{
+	if (clk_idx < MDSS_MAX_CLK)
+		return mdss_res->mdp_clk[clk_idx];
+	return NULL;
 }
 
 irqreturn_t mdss_mdp_isr(int irq, void *ptr);

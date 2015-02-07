@@ -303,7 +303,6 @@ static int ncp6335d_set_mode(struct regulator_dev *rdev,
 	if (rc)
 		dev_err(dd->dev, "Unable to set DVS trans. mode rc(%d)", rc);
 
-
 	dump_registers(dd, REG_NCP6335D_COMMAND, __func__);
 
 	return rc;
@@ -767,6 +766,7 @@ static int ncp6335d_regulator_remove(struct i2c_client *client)
 	struct ncp6335d_info *dd = i2c_get_clientdata(client);
 
 	regulator_unregister(dd->regulator);
+
 	debugfs_remove_recursive(dd->debug_root);
 
 	return 0;

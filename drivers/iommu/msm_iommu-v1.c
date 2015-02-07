@@ -897,14 +897,11 @@ static void msm_iommu_detach_dev(struct iommu_domain *domain,
 	int ret;
 	int is_secure;
 
-	if (!dev)
-		return;
-
 	msm_iommu_detached(dev->parent);
 
 	mutex_lock(&msm_iommu_lock);
 	priv = domain->priv;
-	if (!priv)
+	if (!priv || !dev)
 		goto unlock;
 
 	iommu_drvdata = dev_get_drvdata(dev->parent);
@@ -972,11 +969,9 @@ static int msm_iommu_map(struct iommu_domain *domain, unsigned long va,
 	ret = msm_iommu_pagetable_map(&priv->pt, va, pa, len, prot);
 	if (ret)
 		goto fail;
-
 #ifdef CONFIG_MSM_IOMMU_TLBINVAL_ON_MAP
 	ret = __flush_iotlb_va(domain, va);
 #endif
-
 fail:
 	mutex_unlock(&msm_iommu_lock);
 	return ret;
@@ -1025,11 +1020,9 @@ static int msm_iommu_map_range(struct iommu_domain *domain, unsigned int va,
 	ret = msm_iommu_pagetable_map_range(&priv->pt, va, sg, len, prot);
 	if (ret)
 		goto fail;
-
 #ifdef CONFIG_MSM_IOMMU_TLBINVAL_ON_MAP
 	__flush_iotlb(domain);
 #endif
-
 fail:
 	mutex_unlock(&msm_iommu_lock);
 	return ret;
